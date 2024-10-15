@@ -5,8 +5,8 @@ import logger from './logger';
 export class Bot {
   private bot: TelegramBot;
 
-  constructor(token: string) {
-    this.bot = new TelegramBot(token, { polling: true });
+  constructor(bot: TelegramBot) {
+    this.bot = bot;
   }
 
   public start(): void {

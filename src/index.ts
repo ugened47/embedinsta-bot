@@ -1,4 +1,7 @@
 import 'dotenv/config';
+
+import TelegramBot from 'node-telegram-bot-api';
+
 import logger from './logger';
 
 import { Bot } from './bot';
@@ -13,7 +16,8 @@ if (!telegramToken) {
 }
 
 logger.info('Initializing bot...');
-const bot = new Bot(telegramToken);
+
+const bot = new Bot(new TelegramBot(telegramToken, { polling: true }));
 
 logger.info('Starting bot...');
 bot.start();
