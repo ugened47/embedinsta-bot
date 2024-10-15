@@ -1,20 +1,20 @@
 # Use an official Node runtime as the parent image
-FROM node:14
+FROM node:latest
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# Copy package.json and yarn.lock
+COPY package*.json yarn.lock ./
 
 # Install dependencies
-RUN npm install
+RUN yarn install
 
 # Copy the rest of the application code
 COPY . .
 
 # Compile TypeScript to JavaScript
-RUN npm run build
+RUN yarn build
 
 # Expose the port the app runs on
 EXPOSE 8080
