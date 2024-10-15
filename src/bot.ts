@@ -51,7 +51,7 @@ export class Bot {
         logger.info('Fetching Instagram media...');
         const mediaItems = await fetchInstagramMedia(url);
 
-        if (mediaItems.length > 0) {
+        if (mediaItems?.length > 0) {
           logger.info(`Found ${mediaItems.length} media item(s)`);
           logger.info(JSON.stringify(mediaItems, null, 2));
           await this.sendMediaGroup(msg, mediaItems);

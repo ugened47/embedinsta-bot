@@ -1,12 +1,12 @@
 import { Bot } from './bot';
 import TelegramBot from 'node-telegram-bot-api';
+import { fetchInstagramMedia } from './instagramApi';
 
 jest.mock('node-telegram-bot-api', () => {
   return {
     __esModule: true,
     default: jest.fn().mockImplementation(() => {
       return {
-        on: jest.fn(),
         sendMessage: jest.fn(),
         sendMediaGroup: jest.fn(),
       };
@@ -14,14 +14,7 @@ jest.mock('node-telegram-bot-api', () => {
   };
 });
 
-jest.mock('./instagramApi', () => {
-  return {
-    fetchInstagramMedia: jest.fn().mockResolvedValue([
-      { type: 'image', url: 'https://example.com/image.jpg' },
-      { type: 'video', url: 'https://example.com/video.mp4' },
-    ]),
-  };
-});
+jest.mock('./instagramApi');
 
 describe('Bot', () => {
   let bot: Bot;
@@ -38,6 +31,11 @@ describe('Bot', () => {
 
   describe('handleMessage', () => {
     it('should send a media group if the text contains an Instagram URL', async () => {
+      (fetchInstagramMedia as jest.Mock).mockResolvedValue([
+        { type: 'image', url: 'https://example.com/image.jpg' },
+        { type: 'video', url: 'https://example.com/video.mp4' },
+      ]);
+
       const chatId = 123;
       const msg = {
         chat: { id: chatId },
@@ -64,6 +62,24 @@ describe('Bot', () => {
 
       expect(botMock.sendMediaGroup).not.toHaveBeenCalled();
       expect(botMock.sendMessage).not.toHaveBeenCalled();
+    });
+
+    it('should send a message if the post does not contain any media', async () => {
+      (fetchInstagramMedia as jest.Mock).mockResolvedValue([]);
+
+      const chatId = 123;
+      const msg = {
+        chat: { id: chatId },
+        text: 'https://www.instagram.com/p/abcdefg/',
+      };
+
+      await bot['handleMessage'](msg as TelegramBot.Message);
+
+      expect(botMock.sendMediaGroup).not.toHaveBeenCalled();
+      expect(botMock.sendMessage).toHaveBeenCalledWith(
+        chatId,
+        'No media found for this Instagram post or reel.',
+      );
     });
   });
 });
